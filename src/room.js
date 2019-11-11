@@ -41,7 +41,7 @@ class BattleRoom extends Room {
         let me = new Player();
         me.name = options.name;
         me.health = 100;
-        //this.state.players[client.id] = me;
+        this.state.players[client.id] = me;
     }
 
     onMessage (client, data) {
