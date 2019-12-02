@@ -36,7 +36,7 @@ class BattleRoom extends Room {
         this.battleName = options.battleName;
         this.playerMoves = {};
         this.maxClients = 10;
-        this.initializeEnemyHealth();
+        this.initializeEnemy();
         // this.timer = this.clock.setInterval(() => this.doTurn(), 10000);
     }
 
@@ -58,7 +58,7 @@ class BattleRoom extends Room {
         // If not all players have made their move AND "this" player's damage
         // is enough to defeat the enemy, update the enemy's health to 0
         // and let all other clients detect that the enemy has been defeated.
-        if(!this.checkPlayersMoves() && this.state.monsterHealth - move.damage <= 0){
+        if(!this.checkPlayersMoves() && this.state.monsterHealth + move.damage <= 0){
             this.state.monsterHealth = 0;
         }
     }
@@ -113,12 +113,7 @@ class BattleRoom extends Room {
         });
         
         console.log("Total Damage: " + totalDamage);
-        if(this.state.monsterHealth - totalDamage <= 0){
-            this.state.monsterHealth = 0;
-        }
-        else{
-            this.state.monsterHealth -= totalDamage;
-        }
+        this.state.monsterHealth = Math.max(0, this.state.monsterHealth + totalDamage);
 
         this.sendEnemyMove();
 
@@ -127,27 +122,34 @@ class BattleRoom extends Room {
     }
 
     sendEnemyMove()
-    {
-        // console.log("Sending enemy move...");
-        this.clients.every(client => this.send(client, "Punch 3 damage"));
+    {        
+        var enemyMove = 'default move';
+        if(this.enemyMoves.length > 0){
+            enemyMove = this.enemyMoves[Math.floor(Math.random() * this.enemyMoves.length)];
+        }
+        console.log("Sending enemy move: " + enemyMove);
+        this.clients.every(client => this.send(client, enemyMove));
     }
 
-    initializeEnemyHealth()
+    initializeEnemy()
     {
         request(baseURL + '/enemy/' + this.battleName , { json: true }, (err, res, body) => {
             if (err)
             { 
                 this.handleNetworkError(err);
                 this.state.monsterHealth = 100;
+                this.enemyMoves = [];
             }
             else if (res.statusCode != 200)
             {
                 this.handleHTTPError(res, body);
                 this.state.monsterHealth = 100;
+                this.enemyMoves = [];
             }
             else
             {
                 this.state.monsterHealth = body.hp;
+                this.enemyMoves = body.attacks;
             }
         });
     }
