@@ -44,16 +44,17 @@ class BattleRoom extends Room {
         console.log(client.id, "joined!");
         let me = new Player();
         me.name = options.name;
-        me.health = 100;
+        me.health = options.playerHealth;
         this.state.players[client.id] = me;
     }
 
     onMessage (client, data) {
         console.log(client.id, "sent message");
         var move = JSON.parse(data);
-        // console.log(move);
+        console.log(move);
         this.playerMoves[client.id] = move;
         console.log(this.playerMoves);
+        this.state.players[client.id].health = move.playerHealth;
 
         // If not all players have made their move AND "this" player's damage
         // is enough to defeat the enemy, update the enemy's health to 0
@@ -124,7 +125,7 @@ class BattleRoom extends Room {
     sendEnemyMove()
     {        
         var enemyMove = 'default move';
-        if(this.enemyMoves.length > 0){
+        if(this.enemyMoves !== undefined && this.enemyMoves.length > 0){
             enemyMove = this.enemyMoves[Math.floor(Math.random() * this.enemyMoves.length)];
         }
         console.log("Sending enemy move: " + enemyMove);
