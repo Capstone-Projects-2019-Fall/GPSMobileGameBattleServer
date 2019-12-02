@@ -129,7 +129,7 @@ class BattleRoom extends Room {
             enemyMove = this.enemyMoves[Math.floor(Math.random() * this.enemyMoves.length)];
         }
         console.log("Sending enemy move: " + enemyMove);
-        this.clients.every(client => this.send(client, enemyMove));
+        this.clients.forEach(client => this.send(client, enemyMove));
     }
 
     initializeEnemy()
