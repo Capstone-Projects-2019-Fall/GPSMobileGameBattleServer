@@ -73,7 +73,7 @@ class BattleRoom extends Room {
         // Since checkPlayersMoves() is only called in onMessage() the last client will not
         // be able to send their move and the other players will wait indefinitely.
         // Calling this method when a player leaves could solve this problem.
-        //this.checkPlayersMoves();
+        this.checkPlayersMoves();
     }
 
     onDispose() {
