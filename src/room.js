@@ -110,12 +110,16 @@ class BattleRoom extends Room {
     doTurn() {
         var totalDamage = 0;
         var playerToPlayerMoves = {
-            healing: []
+            healing: [],
+            drawCards: [],
+            buff: []
         };
 
         Object.keys(this.playerMoves).forEach(id => {            
             totalDamage += this.playerMoves[id].damage;
             playerToPlayerMoves.healing = playerToPlayerMoves.healing.concat(this.playerMoves[id].healing);
+            playerToPlayerMoves.drawCards = playerToPlayerMoves.drawCards.concat(this.playerMoves[id].drawCards);
+            playerToPlayerMoves.buff = playerToPlayerMoves.buff.concat(this.playerMoves[id].buff);
         });
         
         console.log("Total Damage: " + totalDamage);
@@ -136,7 +140,7 @@ class BattleRoom extends Room {
         unbroadcastedMoves.attack = enemyMove;
         unbroadcastedMoves = JSON.stringify(unbroadcastedMoves);
         console.log("Sending enemy move: " + unbroadcastedMoves);        
-        this.clients.forEach(client => this.send(client, unbroadcastedMoves));
+        this.broadcast(unbroadcastedMoves);
     }
 
     initializeEnemy()
