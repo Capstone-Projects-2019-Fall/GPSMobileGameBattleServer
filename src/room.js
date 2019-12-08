@@ -109,27 +109,34 @@ class BattleRoom extends Room {
      */
     doTurn() {
         var totalDamage = 0;
+        var playerToPlayerMoves = {
+            healing: []
+        };
+
         Object.keys(this.playerMoves).forEach(id => {            
             totalDamage += this.playerMoves[id].damage;
+            playerToPlayerMoves.healing = playerToPlayerMoves.healing.concat(this.playerMoves[id].healing);
         });
         
         console.log("Total Damage: " + totalDamage);
         this.state.monsterHealth = Math.max(0, this.state.monsterHealth + totalDamage);
 
-        this.sendEnemyMove();
+        this.sendEnemyMove(playerToPlayerMoves);
 
         this.playerMoves = {};
         // this.timer.reset();
     }
 
-    sendEnemyMove()
+    sendEnemyMove(unbroadcastedMoves)
     {        
         var enemyMove = 'default move';
         if(this.enemyMoves !== undefined && this.enemyMoves.length > 0){
             enemyMove = this.enemyMoves[Math.floor(Math.random() * this.enemyMoves.length)];
         }
-        console.log("Sending enemy move: " + enemyMove);
-        this.clients.forEach(client => this.send(client, enemyMove));
+        unbroadcastedMoves.attack = enemyMove;
+        unbroadcastedMoves = JSON.stringify(unbroadcastedMoves);
+        console.log("Sending enemy move: " + unbroadcastedMoves);        
+        this.clients.forEach(client => this.send(client, unbroadcastedMoves));
     }
 
     initializeEnemy()
